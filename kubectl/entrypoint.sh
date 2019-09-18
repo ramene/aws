@@ -6,7 +6,7 @@ set -exou pipefail
 env 
 
 # If the GITHUB_ACTION variable is set, we'll do some extra things to make common tasks easier.
-if [ ! -z "${KUBE_CONFIG_DATA:-}" ]; then
+if [ ! -z "${GITHUB_WORKFLOW}" ]; then
 
     env
 
@@ -33,3 +33,13 @@ echo "\`cat ${pulumi_ci}/kubeconfig\`"
 # echo "\`export KUBECONFIG=${pulumi_ci}/kubeconfig\`"
 
 # sh -c "kubectl $*"
+
+KUBECTL_COMMAND="kubectl -f $*"
+OUTPUT_FILE=$(mktemp)
+
+echo "\`$PULUMI_COMMAND\`"
+echo "\`$pulumi_ci\`"
+bash -c "$KUBECTL_COMMAND" | tee $OUTPUT_FILE
+
+EXIT_CODE=${PIPESTATUS[0]}
+

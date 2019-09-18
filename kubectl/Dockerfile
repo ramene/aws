@@ -1,25 +1,34 @@
-FROM gcr.io/cloud-builders/kubectl
+FROM alpine
 
-LABEL version="1.0.0"
-LABEL name="aws-kubectl"
-LABEL repository="http://github.com/actions/aws"
-LABEL homepage="http://github.com/actions/aws"
+LABEL maintainer="Ramene Anthony <ramene.anthony@gmail.com>"
 
-LABEL maintainer="GitHub Actions <support+actions@github.com>"
-LABEL com.github.actions.name="GitHub Action for AWS - kubectl"
-LABEL com.github.actions.description="Stores a kubectl config"
-LABEL com.github.actions.icon="box"
-LABEL com.github.actions.color="yellow"
+# NOTE: Adapted for GitHub Actions, inspired by and derived from https://github.com/lachie83/k8s-kubectl 
+# ARG VCS_REF
+# ARG BUILD_DATE
+
+# Metadata
+LABEL org.label-schema.vcs-ref=$GITHUB_SHA \ 
+      org.label-schema.vcs-url="http://github.com/ramene/aws/kubectl" \
+      # org.label-schema.build-date=$BUILD_DATE \
+      org.label-schema.docker.dockerfile="/Dockerfile"
+
+LABEL com.github.actions.name="GitHub Actions for kubectl" \
+      com.github.actions.description="Stores a kubectl config" \
+      com.github.actions.icon="box" \
+      com.github.actions.color="black" 
+
 COPY LICENSE README.md THIRD_PARTY_NOTICE.md /
 
-RUN apt-get update -y && \
-    apt-get install -y curl gnupg && \
-    curl -Lso /bin/aws-iam-authenticator https://amazon-eks.s3-us-west-2.amazonaws.com/1.11.5/2018-12-06/bin/linux/amd64/aws-iam-authenticator && \
-    chmod +x /bin/aws-iam-authenticator && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
+ENV KUBE_LATEST_VERSION="v1.15.3"
+
+RUN apk add --update ca-certificates \
+ && apk add --update -t deps curl gnupg \
+ && curl -L https://storage.googleapis.com/kubernetes-release/release/${KUBE_LATEST_VERSION}/bin/linux/amd64/kubectl -o /usr/local/bin/kubectl \
+ && chmod +x /usr/local/bin/kubectl \
+ && apk del --purge deps \
+ && rm /var/cache/apk/*
 
 COPY entrypoint.sh /entrypoint.sh
 
-ENTRYPOINT ["/entrypoint.sh"]
+ENTRYPOINT ["kubectl"]
 CMD ["help"]

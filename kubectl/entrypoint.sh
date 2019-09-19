@@ -34,10 +34,10 @@ echo "\`cat ${pulumi_ci}/kubeconfig\`"
 
 # sh -c "kubectl $*"
 
-KUBECTL_COMMAND="kubectl -f $*"
+KUBECTL_COMMAND="kubectl $*"
 OUTPUT_FILE=$(mktemp)
 
-echo "\`$PULUMI_COMMAND\`"
+echo "\`$KUBECTL_COMMAND\`"
 echo "\`$pulumi_ci\`"
 bash -c "$KUBECTL_COMMAND" | tee $OUTPUT_FILE
 

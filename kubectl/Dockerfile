@@ -28,7 +28,6 @@ RUN apk add --update ca-certificates \
  && apk del --purge deps \
  && rm /var/cache/apk/*
 
-COPY entrypoint.sh /entrypoint.sh
+COPY entrypoint.sh /usr/local/bin/join-cluster
 
-ENTRYPOINT ["kubectl"]
-CMD ["help"]
+ENTRYPOINT ["/usr/local/bin/join-cluster"]
